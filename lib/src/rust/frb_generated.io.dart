@@ -45,9 +45,6 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   Memory dco_decode_memory(dynamic raw);
 
   @protected
-  (double, Unit) dco_decode_record_f_64_unit(dynamic raw);
-
-  @protected
   Storage dco_decode_storage(dynamic raw);
 
   @protected
@@ -82,9 +79,6 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   Memory sse_decode_memory(SseDeserializer deserializer);
-
-  @protected
-  (double, Unit) sse_decode_record_f_64_unit(SseDeserializer deserializer);
 
   @protected
   Storage sse_decode_storage(SseDeserializer deserializer);
@@ -123,10 +117,6 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_memory(Memory self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_record_f_64_unit(
-      (double, Unit) self, SseSerializer serializer);
 
   @protected
   void sse_encode_storage(Storage self, SseSerializer serializer);

@@ -3,13 +3,12 @@ use crate::{
     utils::{Storage, Unit},
 };
 
-#[flutter_rust_bridge::frb(sync)]
 pub fn get_memory_info() -> anyhow::Result<Memory> {
     Ok(Memory::get())
 }
 
 #[flutter_rust_bridge::frb(sync)]
-pub fn storage_to_float(storage: &Storage) -> anyhow::Result<(f64, Unit)> {
+pub fn storage_to_float(storage: &Storage) -> anyhow::Result<f64> {
     Ok(storage.to_float())
 }
 

@@ -8,9 +8,10 @@ import '../memory.dart';
 import '../utils.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-Memory getMemoryInfo() => RustLib.instance.api.crateApiMemoryGetMemoryInfo();
+Future<Memory> getMemoryInfo() =>
+    RustLib.instance.api.crateApiMemoryGetMemoryInfo();
 
-(double, Unit) storageToFloat({required Storage storage}) =>
+double storageToFloat({required Storage storage}) =>
     RustLib.instance.api.crateApiMemoryStorageToFloat(storage: storage);
 
 String unitToString({required Unit unit}) =>

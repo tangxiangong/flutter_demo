@@ -84,7 +84,7 @@ impl Storage {
         }
     }
 
-    pub fn to_float(&self) -> (f64, Unit) {
+    pub fn to_float(&self) -> f64 {
         const SCALE_KB: f64 = 1.0 / 1024.0;
         const SCALE_MB: f64 = 1.0 / (1024.0 * 1024.0);
         const SCALE_GB: f64 = 1.0 / (1024.0 * 1024.0 * 1024.0);
@@ -92,27 +92,12 @@ impl Storage {
         const SCALE_PB: f64 = 1.0 / (1024.0 * 1024.0 * 1024.0 * 1024.0 * 1024.0);
 
         match self.unit {
-            Unit::B => (self.quotient as f64, self.unit),
-            Unit::KB => (
-                self.quotient as f64 + (self.remainder as f64 * SCALE_KB),
-                self.unit,
-            ),
-            Unit::MB => (
-                self.quotient as f64 + (self.remainder as f64 * SCALE_MB),
-                self.unit,
-            ),
-            Unit::GB => (
-                self.quotient as f64 + (self.remainder as f64 * SCALE_GB),
-                self.unit,
-            ),
-            Unit::TB => (
-                self.quotient as f64 + (self.remainder as f64 * SCALE_TB),
-                self.unit,
-            ),
-            Unit::PB => (
-                self.quotient as f64 + (self.remainder as f64 * SCALE_PB),
-                self.unit,
-            ),
+            Unit::B => self.quotient as f64,
+            Unit::KB => self.quotient as f64 + (self.remainder as f64 * SCALE_KB),
+            Unit::MB => self.quotient as f64 + (self.remainder as f64 * SCALE_MB),
+            Unit::GB => self.quotient as f64 + (self.remainder as f64 * SCALE_GB),
+            Unit::TB => self.quotient as f64 + (self.remainder as f64 * SCALE_TB),
+            Unit::PB => self.quotient as f64 + (self.remainder as f64 * SCALE_PB),
         }
     }
 
@@ -131,8 +116,8 @@ impl Storage {
 
 impl std::fmt::Display for Storage {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let (value, unit) = self.to_float();
-        write!(f, "{} {}", value, unit)
+        let value = self.to_float();
+        write!(f, "{} {}", value, self.unit)
     }
 }
 
@@ -327,99 +312,71 @@ mod tests {
     fn test_to_float() {
         const EPSILON: f64 = 1e-10;
 
-        let (value, unit) = Storage::new(0, 0, Unit::B).to_float();
-        assert_eq!(unit, Unit::B);
+        let value = Storage::new(0, 0, Unit::B).to_float();
         assert!((value - 0.0).abs() < EPSILON);
 
-        let (value, unit) = Storage::new(1, 0, Unit::B).to_float();
-        assert_eq!(unit, Unit::B);
+        let value = Storage::new(1, 0, Unit::B).to_float();
         assert!((value - 1.0).abs() < EPSILON);
 
-        let (value, unit) = Storage::new(512, 0, Unit::B).to_float();
-        assert_eq!(unit, Unit::B);
+        let value = Storage::new(512, 0, Unit::B).to_float();
         assert!((value - 512.0).abs() < EPSILON);
 
-        let (value, unit) = Storage::new(1023, 0, Unit::B).to_float();
-        assert_eq!(unit, Unit::B);
+        let value = Storage::new(1023, 0, Unit::B).to_float();
         assert!((value - 1023.0).abs() < EPSILON);
 
-        let (value, unit) = Storage::new(1, 0, Unit::KB).to_float();
-        assert_eq!(unit, Unit::KB);
+        let value = Storage::new(1, 0, Unit::KB).to_float();
         assert!((value - 1.0).abs() < EPSILON);
 
-        let (value, unit) = Storage::new(5, 0, Unit::KB).to_float();
-        assert_eq!(unit, Unit::KB);
+        let value = Storage::new(5, 0, Unit::KB).to_float();
         assert!((value - 5.0).abs() < EPSILON);
 
-        let (value, unit) = Storage::new(1, 512, Unit::KB).to_float();
-        assert_eq!(unit, Unit::KB);
-        let expected = 1.0 + (512.0 / 1024.0);
-        assert!(
-            (value - expected).abs() < EPSILON,
-            "Expected {}, got {}",
-            expected,
-            value
-        );
+        let value = Storage::new(1, 512, Unit::KB).to_float();
+        assert!((value - 1.0 - (512.0 / 1024.0)).abs() < EPSILON);
 
-        let (value, unit) = Storage::new(2, 256, Unit::KB).to_float();
-        assert_eq!(unit, Unit::KB);
-        let expected = 2.0 + (256.0 / 1024.0);
-        assert!((value - expected).abs() < EPSILON);
+        let value = Storage::new(2, 256, Unit::KB).to_float();
+        assert!((value - 2.0 - (256.0 / 1024.0)).abs() < EPSILON);
 
-        let (value, unit) = Storage::new(1, 0, Unit::MB).to_float();
-        assert_eq!(unit, Unit::MB);
+        let value = Storage::new(1, 0, Unit::MB).to_float();
         assert!((value - 1.0).abs() < EPSILON);
 
-        let (value, unit) = Storage::new(3, 0, Unit::MB).to_float();
-        assert_eq!(unit, Unit::MB);
+        let value = Storage::new(3, 0, Unit::MB).to_float();
         assert!((value - 3.0).abs() < EPSILON);
 
-        let (value, unit) = Storage::new(1, 512, Unit::MB).to_float();
-        assert_eq!(unit, Unit::MB);
+        let value = Storage::new(1, 512, Unit::MB).to_float();
         let expected = 1.0 + (512.0 / (1024.0 * 1024.0));
         assert!((value - expected).abs() < EPSILON);
 
-        let (value, unit) = Storage::new(3, 256, Unit::MB).to_float();
-        assert_eq!(unit, Unit::MB);
+        let value = Storage::new(3, 256, Unit::MB).to_float();
         let expected = 3.0 + (256.0 / (1024.0 * 1024.0));
         assert!((value - expected).abs() < EPSILON);
 
-        let (value, unit) = Storage::new(1, 0, Unit::GB).to_float();
-        assert_eq!(unit, Unit::GB);
+        let value = Storage::new(1, 0, Unit::GB).to_float();
         assert!((value - 1.0).abs() < EPSILON);
 
-        let (value, unit) = Storage::new(5, 0, Unit::GB).to_float();
-        assert_eq!(unit, Unit::GB);
+        let value = Storage::new(5, 0, Unit::GB).to_float();
         assert!((value - 5.0).abs() < EPSILON);
 
-        let (value, unit) = Storage::new(5, 1024 * 1024, Unit::GB).to_float();
-        assert_eq!(unit, Unit::GB);
+        let value = Storage::new(5, 1024 * 1024, Unit::GB).to_float();
         let expected = 5.0 + ((1024.0 * 1024.0) / (1024.0 * 1024.0 * 1024.0));
         assert!((value - expected).abs() < EPSILON);
 
-        let (value, unit) = Storage::new(1, 0, Unit::TB).to_float();
-        assert_eq!(unit, Unit::TB);
+        let value = Storage::new(1, 0, Unit::TB).to_float();
         assert!((value - 1.0).abs() < EPSILON);
 
-        let (value, unit) = Storage::new(10, 0, Unit::TB).to_float();
-        assert_eq!(unit, Unit::TB);
+        let value = Storage::new(10, 0, Unit::TB).to_float();
         assert!((value - 10.0).abs() < EPSILON);
 
-        let (value, unit) = Storage::new(2, 512, Unit::TB).to_float();
-        assert_eq!(unit, Unit::TB);
+        let value = Storage::new(2, 512, Unit::TB).to_float();
         let expected = 2.0 + (512.0 / (1024.0 * 1024.0 * 1024.0 * 1024.0));
         assert!((value - expected).abs() < EPSILON);
 
-        let (value, unit) = Storage::new(1, 0, Unit::PB).to_float();
-        assert_eq!(unit, Unit::PB);
+        let value = Storage::new(1, 0, Unit::PB).to_float();
         assert!((value - 1.0).abs() < EPSILON);
 
-        let (value, unit) = Storage::new(100, 0, Unit::PB).to_float();
-        assert_eq!(unit, Unit::PB);
+        let value = Storage::new(100, 0, Unit::PB).to_float();
         assert!((value - 100.0).abs() < EPSILON);
 
-        let (value, unit) = Storage::new(100, 512, Unit::PB).to_float();
-        assert_eq!(unit, Unit::PB);
+        let value = Storage::new(100, 512, Unit::PB).to_float();
         let expected = 100.0 + (512.0 / (1024.0 * 1024.0 * 1024.0 * 1024.0 * 1024.0));
         assert!((value - expected).abs() < EPSILON);
     }
@@ -449,9 +406,9 @@ mod tests {
 
         for storage in test_cases {
             let bytes = storage.to_bytes();
-            let (value, unit) = storage.to_float();
+            let value = storage.to_float();
 
-            let calculated_bytes = match unit {
+            let calculated_bytes = match storage.unit {
                 Unit::B => value,
                 Unit::KB => value * 1024.0,
                 Unit::MB => value * 1024.0 * 1024.0,
@@ -476,17 +433,14 @@ mod tests {
     fn test_to_float_edge_cases() {
         const EPSILON: f64 = 1e-10;
 
-        let (value, unit) = Storage::new(1023, 1023, Unit::KB).to_float();
-        assert_eq!(unit, Unit::KB);
+        let value = Storage::new(1023, 1023, Unit::KB).to_float();
         let expected = 1023.0 + (1023.0 / 1024.0);
         assert!((value - expected).abs() < EPSILON);
 
-        let (value, unit) = Storage::new(1000, 0, Unit::PB).to_float();
-        assert_eq!(unit, Unit::PB);
+        let value = Storage::new(1000, 0, Unit::PB).to_float();
         assert!((value - 1000.0).abs() < EPSILON);
 
-        let (value, unit) = Storage::new(10, 1024 * 1024 * 1023, Unit::GB).to_float();
-        assert_eq!(unit, Unit::GB);
+        let value = Storage::new(10, 1024 * 1024 * 1023, Unit::GB).to_float();
         let expected = 10.0 + ((1024.0 * 1024.0 * 1023.0) / (1024.0 * 1024.0 * 1024.0));
         assert!((value - expected).abs() < EPSILON);
     }

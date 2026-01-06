@@ -83,11 +83,11 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
 }
 
 abstract class RustLibApi extends BaseApi {
-  Memory crateApiMemoryGetMemoryInfo();
+  Future<Memory> crateApiMemoryGetMemoryInfo();
 
   Future<bool> crateApiMemoryInitApp();
 
-  (double, Unit) crateApiMemoryStorageToFloat({required Storage storage});
+  double crateApiMemoryStorageToFloat({required Storage storage});
 
   String crateApiMemoryUnitToString({required Unit unit});
 }
@@ -101,11 +101,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   });
 
   @override
-  Memory crateApiMemoryGetMemoryInfo() {
-    return handler.executeSync(SyncTask(
-      callFfi: () {
+  Future<Memory> crateApiMemoryGetMemoryInfo() {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
         final serializer = SseSerializer(generalizedFrbRustBinding);
-        return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 1)!;
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 1, port: port_);
       },
       codec: SseCodec(
         decodeSuccessData: sse_decode_memory,
@@ -147,7 +148,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
-  (double, Unit) crateApiMemoryStorageToFloat({required Storage storage}) {
+  double crateApiMemoryStorageToFloat({required Storage storage}) {
     return handler.executeSync(SyncTask(
       callFfi: () {
         final serializer = SseSerializer(generalizedFrbRustBinding);
@@ -155,7 +156,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 3)!;
       },
       codec: SseCodec(
-        decodeSuccessData: sse_decode_record_f_64_unit,
+        decodeSuccessData: sse_decode_f_64,
         decodeErrorData: sse_decode_AnyhowException,
       ),
       constMeta: kCrateApiMemoryStorageToFloatConstMeta,
@@ -250,19 +251,6 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  (double, Unit) dco_decode_record_f_64_unit(dynamic raw) {
-    // Codec=Dco (DartCObject based), see doc to use other codecs
-    final arr = raw as List<dynamic>;
-    if (arr.length != 2) {
-      throw Exception('Expected 2 elements, got ${arr.length}');
-    }
-    return (
-      dco_decode_f_64(arr[0]),
-      dco_decode_unit(arr[1]),
-    );
-  }
-
-  @protected
   Storage dco_decode_storage(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
@@ -353,14 +341,6 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  (double, Unit) sse_decode_record_f_64_unit(SseDeserializer deserializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    var var_field0 = sse_decode_f_64(deserializer);
-    var var_field1 = sse_decode_unit(deserializer);
-    return (var_field0, var_field1);
-  }
-
-  @protected
   Storage sse_decode_storage(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var var_quotient = sse_decode_u_64(deserializer);
@@ -441,14 +421,6 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_storage(self.usedMemory, serializer);
     sse_encode_storage(self.totalSwap, serializer);
     sse_encode_storage(self.usedSwap, serializer);
-  }
-
-  @protected
-  void sse_encode_record_f_64_unit(
-      (double, Unit) self, SseSerializer serializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_f_64(self.$1, serializer);
-    sse_encode_unit(self.$2, serializer);
   }
 
   @protected
