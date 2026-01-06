@@ -1,11 +1,13 @@
 use sysinfo::{MemoryRefreshKind, RefreshKind, System};
 
+use crate::utils::Storage;
+
 #[derive(Debug, Clone)]
 pub struct Memory {
-    pub total_memory: u64,
-    pub used_memory: u64,
-    pub total_swap: u64,
-    pub used_swap: u64,
+    pub total_memory: Storage,
+    pub used_memory: Storage,
+    pub total_swap: Storage,
+    pub used_swap: Storage,
 }
 
 impl Memory {
@@ -15,10 +17,10 @@ impl Memory {
         );
         sys.refresh_all();
 
-        let total_memory = sys.total_memory();
-        let used_memory = sys.used_memory();
-        let total_swap = sys.total_swap();
-        let used_swap = sys.used_swap();
+        let total_memory = Storage::from_bytes(sys.total_memory());
+        let used_memory = Storage::from_bytes(sys.used_memory());
+        let total_swap = Storage::from_bytes(sys.total_swap());
+        let used_swap = Storage::from_bytes(sys.used_swap());
 
         Self {
             total_memory,

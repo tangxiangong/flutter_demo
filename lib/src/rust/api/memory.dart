@@ -4,7 +4,16 @@
 // ignore_for_file: invalid_use_of_internal_member, unused_import, unnecessary_import
 
 import '../frb_generated.dart';
+import '../memory.dart';
+import '../utils.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-String greet({required String name}) =>
-    RustLib.instance.api.crateApiSimpleGreet(name: name);
+
+            
+
+            Memory  getMemoryInfo() => RustLib.instance.api.crateApiMemoryGetMemoryInfo();
+
+(double,Unit)  storageToFloat({required Storage storage }) => RustLib.instance.api.crateApiMemoryStorageToFloat(storage: storage);
+
+            
+            

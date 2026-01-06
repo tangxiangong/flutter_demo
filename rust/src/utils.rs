@@ -1,8 +1,8 @@
 #[derive(Debug, Clone, PartialEq)]
 pub struct Storage {
-    quotient: u64,
-    remainder: u64,
-    unit: Unit,
+    pub(crate) quotient: u64,
+    pub(crate) remainder: u64,
+    pub(crate) unit: Unit,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]

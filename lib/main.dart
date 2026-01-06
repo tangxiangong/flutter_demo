@@ -1,8 +1,11 @@
 import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_demo/src/rust/api/memory.dart';
+import 'package:flutter_demo/src/rust/frb_generated.dart';
 import 'package:provider/provider.dart';
 
-void main() {
+Future<void> main() async {
+  await RustLib.init();
   runApp(MyApp());
 }
 
@@ -61,6 +64,9 @@ class _MyHomePageState extends State<MyHomePage> {
         page = GeneratorPage();
         break;
       case 1:
+        page = MemoryInfoWidget();
+        break;
+      case 2:
         page = FavoritesPage();
         break;
       default:
@@ -78,6 +84,10 @@ class _MyHomePageState extends State<MyHomePage> {
                   NavigationRailDestination(
                     icon: Icon(Icons.home),
                     label: Text('Home'),
+                  ),
+                  NavigationRailDestination(
+                    icon: Icon(Icons.memory),
+                    label: Text('Memory'),
                   ),
                   NavigationRailDestination(
                     icon: Icon(Icons.favorite),
@@ -102,6 +112,16 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       );
     });
+  }
+}
+
+class MemoryInfoWidget extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    var memoryInfo = getMemoryInfo();
+    var (totalMemory, unit) = storageToFloat(storage: memoryInfo.totalMemory);
+
+    return Center(child: Text('Memory: $totalMemory $unit'));
   }
 }
 

@@ -1,0 +1,20 @@
+use crate::{
+    memory::Memory,
+    utils::{Storage, Unit},
+};
+
+#[flutter_rust_bridge::frb(sync)]
+pub fn get_memory_info() -> anyhow::Result<Memory> {
+    Ok(Memory::get())
+}
+
+#[flutter_rust_bridge::frb(sync)]
+pub fn storage_to_float(storage: &Storage) -> anyhow::Result<(f64, Unit)> {
+    Ok(storage.to_float())
+}
+
+#[flutter_rust_bridge::frb(init)]
+pub fn init_app() -> anyhow::Result<bool> {
+    flutter_rust_bridge::setup_default_user_utils();
+    Ok(true)
+}
