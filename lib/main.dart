@@ -121,7 +121,8 @@ class MemoryInfoWidget extends StatelessWidget {
     var memoryInfo = getMemoryInfo();
     var (totalMemory, unit) = storageToFloat(storage: memoryInfo.totalMemory);
 
-    return Center(child: Text('Memory: $totalMemory $unit'));
+    return Center(
+        child: Text('Memory: $totalMemory ${unitToString(unit: unit)}'));
   }
 }
 
