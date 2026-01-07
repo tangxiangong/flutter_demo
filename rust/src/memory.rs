@@ -86,6 +86,10 @@ impl Memory {
         }
     }
 
+    pub fn tree(&self) -> anyhow::Result<Tree<u32, ()>> {
+        build_tree(&self.processes)
+    }
+
     pub fn first(&self, n: usize) -> Vec<(u32, ProcessMemoryInfo)> {
         self.processes
             .iter()
@@ -95,16 +99,9 @@ impl Memory {
             .map(|(pid, process)| (*pid, process.clone()))
             .collect_vec()
     }
-
-    pub fn process_tree(&self) -> anyhow::Result<Tree<u32, String>> {
-        build_tree(&self.processes)
-    }
 }
 
-fn aggregate_total_memory(
-    tree: &Tree<u32, String>,
-    processes: &mut HashMap<u32, ProcessMemoryInfo>,
-) {
+fn aggregate_total_memory(tree: &Tree<u32, ()>, processes: &mut HashMap<u32, ProcessMemoryInfo>) {
     if let Some(root_node) = tree.get_node_by_id(&VIRTUAL_ROOT_PID)
         && let Ok(children) = root_node.get_children_ids()
     {
@@ -115,7 +112,7 @@ fn aggregate_total_memory(
 }
 
 fn calculate_subtree_memory(
-    tree: &Tree<u32, String>,
+    tree: &Tree<u32, ()>,
     processes: &mut HashMap<u32, ProcessMemoryInfo>,
     pid: u32,
 ) -> Storage {
@@ -159,13 +156,10 @@ fn calculate_subtree_memory(
     total
 }
 
-fn build_tree(processes: &HashMap<u32, ProcessMemoryInfo>) -> anyhow::Result<Tree<u32, String>> {
+fn build_tree(processes: &HashMap<u32, ProcessMemoryInfo>) -> anyhow::Result<Tree<u32, ()>> {
     let mut tree = Tree::new(Some("Process Tree"));
 
-    tree.add_node(
-        Node::new(VIRTUAL_ROOT_PID, Some("virtual root".to_owned())),
-        None,
-    )?;
+    tree.add_node(Node::new(VIRTUAL_ROOT_PID, None), None)?;
 
     let mut pending_children: HashMap<u32, Vec<u32>> = HashMap::new();
 
@@ -174,35 +168,17 @@ fn build_tree(processes: &HashMap<u32, ProcessMemoryInfo>) -> anyhow::Result<Tre
     for (pid, process) in processes {
         match process.parent {
             None => {
-                tree.add_node(
-                    Node::new(*pid, Some(process.name.clone())),
-                    Some(&VIRTUAL_ROOT_PID),
-                )?;
+                tree.add_node(Node::new(*pid, None), Some(&VIRTUAL_ROOT_PID))?;
                 added.insert(*pid);
 
-                process_pending(
-                    &mut tree,
-                    &mut pending_children,
-                    &mut added,
-                    *pid,
-                    processes,
-                )?;
+                process_pending(&mut tree, &mut pending_children, &mut added, *pid)?;
             }
             Some(parent_pid) => {
                 if added.contains(&parent_pid) {
-                    tree.add_node(
-                        Node::new(*pid, Some(process.name.clone())),
-                        Some(&parent_pid),
-                    )?;
+                    tree.add_node(Node::new(*pid, None), Some(&parent_pid))?;
                     added.insert(*pid);
 
-                    process_pending(
-                        &mut tree,
-                        &mut pending_children,
-                        &mut added,
-                        *pid,
-                        processes,
-                    )?;
+                    process_pending(&mut tree, &mut pending_children, &mut added, *pid)?;
                 } else {
                     pending_children.entry(parent_pid).or_default().push(*pid);
                 }
@@ -214,29 +190,17 @@ fn build_tree(processes: &HashMap<u32, ProcessMemoryInfo>) -> anyhow::Result<Tre
 }
 
 fn process_pending(
-    tree: &mut Tree<u32, String>,
+    tree: &mut Tree<u32, ()>,
     pending_children: &mut HashMap<u32, Vec<u32>>,
     added: &mut HashSet<u32>,
     parent_id: u32,
-    processes: &HashMap<u32, ProcessMemoryInfo>,
 ) -> anyhow::Result<()> {
     if let Some(children) = pending_children.remove(&parent_id) {
         for child_id in children {
-            tree.add_node(
-                Node::new(
-                    child_id,
-                    Some(
-                        processes
-                            .get(&child_id)
-                            .map(|p| p.name.clone())
-                            .unwrap_or_default(),
-                    ),
-                ),
-                Some(&parent_id),
-            )?;
+            tree.add_node(Node::new(child_id, None), Some(&parent_id))?;
             added.insert(child_id);
 
-            process_pending(tree, pending_children, added, child_id, processes)?;
+            process_pending(tree, pending_children, added, child_id)?;
         }
     }
     Ok(())
@@ -253,12 +217,5 @@ mod tests {
         for (pid, process) in first {
             println!("{}: {}, {}", pid, process.name, process.total_memory);
         }
-    }
-
-    #[test]
-    fn test_process_tree() {
-        let info = Memory::get();
-        let tree = info.process_tree().unwrap();
-        println!("{}", tree);
     }
 }
