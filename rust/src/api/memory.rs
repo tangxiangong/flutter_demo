@@ -8,7 +8,8 @@ pub fn get_memory_info() -> anyhow::Result<Memory> {
 }
 
 pub fn get_first_process_memory_usage(n: usize) -> anyhow::Result<Vec<(u32, ProcessMemoryInfo)>> {
-    Ok(Memory::first(n))
+    let info = Memory::get();
+    Ok(info.first(n))
 }
 
 #[flutter_rust_bridge::frb(sync)]

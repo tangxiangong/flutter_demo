@@ -47,17 +47,29 @@ class ProcessMemoryInfo {
   final BigInt rawMemory;
   final String name;
   final String? exe;
+  final int? parent;
+  final String? root;
+  final Storage totalMemory;
 
   const ProcessMemoryInfo({
     required this.memory,
     required this.rawMemory,
     required this.name,
     this.exe,
+    this.parent,
+    this.root,
+    required this.totalMemory,
   });
 
   @override
   int get hashCode =>
-      memory.hashCode ^ rawMemory.hashCode ^ name.hashCode ^ exe.hashCode;
+      memory.hashCode ^
+      rawMemory.hashCode ^
+      name.hashCode ^
+      exe.hashCode ^
+      parent.hashCode ^
+      root.hashCode ^
+      totalMemory.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -67,5 +79,8 @@ class ProcessMemoryInfo {
           memory == other.memory &&
           rawMemory == other.rawMemory &&
           name == other.name &&
-          exe == other.exe;
+          exe == other.exe &&
+          parent == other.parent &&
+          root == other.root &&
+          totalMemory == other.totalMemory;
 }

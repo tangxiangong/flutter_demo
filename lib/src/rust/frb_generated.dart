@@ -256,6 +256,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  int dco_decode_box_autoadd_u_32(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as int;
+  }
+
+  @protected
   double dco_decode_f_64(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw as double;
@@ -304,16 +310,25 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  int? dco_decode_opt_box_autoadd_u_32(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_box_autoadd_u_32(raw);
+  }
+
+  @protected
   ProcessMemoryInfo dco_decode_process_memory_info(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 4)
-      throw Exception('unexpected arr length: expect 4 but see ${arr.length}');
+    if (arr.length != 7)
+      throw Exception('unexpected arr length: expect 7 but see ${arr.length}');
     return ProcessMemoryInfo(
       memory: dco_decode_storage(arr[0]),
       rawMemory: dco_decode_u_64(arr[1]),
       name: dco_decode_String(arr[2]),
       exe: dco_decode_opt_String(arr[3]),
+      parent: dco_decode_opt_box_autoadd_u_32(arr[4]),
+      root: dco_decode_opt_String(arr[5]),
+      totalMemory: dco_decode_storage(arr[6]),
     );
   }
 
@@ -409,6 +424,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  int sse_decode_box_autoadd_u_32(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_u_32(deserializer));
+  }
+
+  @protected
   double sse_decode_f_64(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return deserializer.buffer.getFloat64();
@@ -470,6 +491,17 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  int? sse_decode_opt_box_autoadd_u_32(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_box_autoadd_u_32(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
   ProcessMemoryInfo sse_decode_process_memory_info(
       SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
@@ -477,11 +509,17 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_rawMemory = sse_decode_u_64(deserializer);
     var var_name = sse_decode_String(deserializer);
     var var_exe = sse_decode_opt_String(deserializer);
+    var var_parent = sse_decode_opt_box_autoadd_u_32(deserializer);
+    var var_root = sse_decode_opt_String(deserializer);
+    var var_totalMemory = sse_decode_storage(deserializer);
     return ProcessMemoryInfo(
         memory: var_memory,
         rawMemory: var_rawMemory,
         name: var_name,
-        exe: var_exe);
+        exe: var_exe,
+        parent: var_parent,
+        root: var_root,
+        totalMemory: var_totalMemory);
   }
 
   @protected
@@ -568,6 +606,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_box_autoadd_u_32(int self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_u_32(self, serializer);
+  }
+
+  @protected
   void sse_encode_f_64(double self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     serializer.buffer.putFloat64(self);
@@ -618,6 +662,16 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_opt_box_autoadd_u_32(int? self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_box_autoadd_u_32(self, serializer);
+    }
+  }
+
+  @protected
   void sse_encode_process_memory_info(
       ProcessMemoryInfo self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
@@ -625,6 +679,9 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_u_64(self.rawMemory, serializer);
     sse_encode_String(self.name, serializer);
     sse_encode_opt_String(self.exe, serializer);
+    sse_encode_opt_box_autoadd_u_32(self.parent, serializer);
+    sse_encode_opt_String(self.root, serializer);
+    sse_encode_storage(self.totalMemory, serializer);
   }
 
   @protected

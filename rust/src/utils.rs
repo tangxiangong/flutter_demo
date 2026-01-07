@@ -114,10 +114,46 @@ impl Storage {
     }
 }
 
+impl std::ops::Add<Storage> for Storage {
+    type Output = Self;
+
+    fn add(self, other: Self) -> Self {
+        let total_bytes = self.to_bytes() + other.to_bytes();
+        Storage::from_bytes(total_bytes)
+    }
+}
+
+impl std::ops::Add<&Storage> for Storage {
+    type Output = Self;
+
+    fn add(self, other: &Self) -> Self {
+        let total_bytes = self.to_bytes() + other.to_bytes();
+        Storage::from_bytes(total_bytes)
+    }
+}
+
+impl std::ops::Add<Storage> for &Storage {
+    type Output = Storage;
+
+    fn add(self, other: Storage) -> Self::Output {
+        let total_bytes = self.to_bytes() + other.to_bytes();
+        Storage::from_bytes(total_bytes)
+    }
+}
+
+impl std::ops::Add<&Storage> for &Storage {
+    type Output = Storage;
+
+    fn add(self, other: &Storage) -> Self::Output {
+        let total_bytes = self.to_bytes() + other.to_bytes();
+        Storage::from_bytes(total_bytes)
+    }
+}
+
 impl std::fmt::Display for Storage {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let value = self.to_float();
-        write!(f, "{} {}", value, self.unit)
+        write!(f, "{:.2} {}", value, self.unit)
     }
 }
 
