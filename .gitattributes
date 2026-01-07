@@ -1,6 +1,3 @@
-rust_builder/** linguist-vendored
-rust/src/frb_generated.rs linguist-generated
-lib/src/rust/** linguist-generated
 *.podspec linguist-vendored
 Podfile linguist-vendored
 Podfile.lock linguist-vendored
