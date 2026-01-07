@@ -124,9 +124,17 @@ class _MemoryInfoWidgetState extends State<MemoryInfoWidget> {
 
     final memory = _memory!;
     return Center(
-      child: Text(
-        'Memory: ${storageToFloat(storage: memory.usedMemory).toStringAsFixed(2)} ${unitToString(unit: memory.usedMemory.unit)} / ${storageToFloat(storage: memory.totalMemory)} ${unitToString(unit: memory.totalMemory.unit)}',
-      ),
-    );
+        child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(
+          'Memory: ${storageToFloat(storage: memory.usedMemory).toStringAsFixed(2)} ${unitToString(unit: memory.usedMemory.unit)} / ${storageToFloat(storage: memory.totalMemory)} ${unitToString(unit: memory.totalMemory.unit)}',
+        ),
+        SizedBox(height: 16),
+        Text(
+          'Swap: ${storageToFloat(storage: memory.usedSwap).toStringAsFixed(2)} ${unitToString(unit: memory.usedSwap.unit)} / ${storageToFloat(storage: memory.totalSwap)} ${unitToString(unit: memory.totalSwap.unit)}',
+        ),
+      ],
+    ));
   }
 }
