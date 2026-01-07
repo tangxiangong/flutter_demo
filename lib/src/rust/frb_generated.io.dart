@@ -24,6 +24,10 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   AnyhowException dco_decode_AnyhowException(dynamic raw);
 
   @protected
+  Map<int, ProcessMemoryInfo> dco_decode_Map_u_32_process_memory_info_None(
+      dynamic raw);
+
+  @protected
   String dco_decode_String(dynamic raw);
 
   @protected
@@ -42,10 +46,27 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
 
   @protected
+  List<(int, ProcessMemoryInfo)>
+      dco_decode_list_record_u_32_process_memory_info(dynamic raw);
+
+  @protected
   Memory dco_decode_memory(dynamic raw);
 
   @protected
+  String? dco_decode_opt_String(dynamic raw);
+
+  @protected
+  ProcessMemoryInfo dco_decode_process_memory_info(dynamic raw);
+
+  @protected
+  (int, ProcessMemoryInfo) dco_decode_record_u_32_process_memory_info(
+      dynamic raw);
+
+  @protected
   Storage dco_decode_storage(dynamic raw);
+
+  @protected
+  int dco_decode_u_32(dynamic raw);
 
   @protected
   BigInt dco_decode_u_64(dynamic raw);
@@ -57,7 +78,14 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   Unit dco_decode_unit(dynamic raw);
 
   @protected
+  BigInt dco_decode_usize(dynamic raw);
+
+  @protected
   AnyhowException sse_decode_AnyhowException(SseDeserializer deserializer);
+
+  @protected
+  Map<int, ProcessMemoryInfo> sse_decode_Map_u_32_process_memory_info_None(
+      SseDeserializer deserializer);
 
   @protected
   String sse_decode_String(SseDeserializer deserializer);
@@ -78,10 +106,29 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
 
   @protected
+  List<(int, ProcessMemoryInfo)>
+      sse_decode_list_record_u_32_process_memory_info(
+          SseDeserializer deserializer);
+
+  @protected
   Memory sse_decode_memory(SseDeserializer deserializer);
 
   @protected
+  String? sse_decode_opt_String(SseDeserializer deserializer);
+
+  @protected
+  ProcessMemoryInfo sse_decode_process_memory_info(
+      SseDeserializer deserializer);
+
+  @protected
+  (int, ProcessMemoryInfo) sse_decode_record_u_32_process_memory_info(
+      SseDeserializer deserializer);
+
+  @protected
   Storage sse_decode_storage(SseDeserializer deserializer);
+
+  @protected
+  int sse_decode_u_32(SseDeserializer deserializer);
 
   @protected
   BigInt sse_decode_u_64(SseDeserializer deserializer);
@@ -93,8 +140,15 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   Unit sse_decode_unit(SseDeserializer deserializer);
 
   @protected
+  BigInt sse_decode_usize(SseDeserializer deserializer);
+
+  @protected
   void sse_encode_AnyhowException(
       AnyhowException self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_Map_u_32_process_memory_info_None(
+      Map<int, ProcessMemoryInfo> self, SseSerializer serializer);
 
   @protected
   void sse_encode_String(String self, SseSerializer serializer);
@@ -116,10 +170,28 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
       Uint8List self, SseSerializer serializer);
 
   @protected
+  void sse_encode_list_record_u_32_process_memory_info(
+      List<(int, ProcessMemoryInfo)> self, SseSerializer serializer);
+
+  @protected
   void sse_encode_memory(Memory self, SseSerializer serializer);
 
   @protected
+  void sse_encode_opt_String(String? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_process_memory_info(
+      ProcessMemoryInfo self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_record_u_32_process_memory_info(
+      (int, ProcessMemoryInfo) self, SseSerializer serializer);
+
+  @protected
   void sse_encode_storage(Storage self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_u_32(int self, SseSerializer serializer);
 
   @protected
   void sse_encode_u_64(BigInt self, SseSerializer serializer);
@@ -129,6 +201,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_unit(Unit self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_usize(BigInt self, SseSerializer serializer);
 }
 
 // Section: wire_class

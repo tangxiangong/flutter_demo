@@ -37,7 +37,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueMoi,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.11.1";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -693551382;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -646841934;
 
 // Section: executor
 
@@ -45,6 +45,41 @@ flutter_rust_bridge::frb_generated_default_handler!();
 
 // Section: wire_funcs
 
+fn wire__crate__api__memory__get_first_process_memory_usage_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "get_first_process_memory_usage",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_n = <usize>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
+                    (move || {
+                        let output_ok = crate::api::memory::get_first_process_memory_usage(api_n)?;
+                        Ok(output_ok)
+                    })(),
+                )
+            }
+        },
+    )
+}
 fn wire__crate__api__memory__get_memory_info_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
@@ -188,6 +223,14 @@ impl SseDecode for flutter_rust_bridge::for_generated::anyhow::Error {
     }
 }
 
+impl SseDecode for std::collections::HashMap<u32, crate::memory::ProcessMemoryInfo> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <Vec<(u32, crate::memory::ProcessMemoryInfo)>>::sse_decode(deserializer);
+        return inner.into_iter().collect();
+    }
+}
+
 impl SseDecode for String {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -229,6 +272,20 @@ impl SseDecode for Vec<u8> {
     }
 }
 
+impl SseDecode for Vec<(u32, crate::memory::ProcessMemoryInfo)> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = vec![];
+        for idx_ in 0..len_ {
+            ans_.push(<(u32, crate::memory::ProcessMemoryInfo)>::sse_decode(
+                deserializer,
+            ));
+        }
+        return ans_;
+    }
+}
+
 impl SseDecode for crate::memory::Memory {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -236,12 +293,53 @@ impl SseDecode for crate::memory::Memory {
         let mut var_usedMemory = <crate::utils::Storage>::sse_decode(deserializer);
         let mut var_totalSwap = <crate::utils::Storage>::sse_decode(deserializer);
         let mut var_usedSwap = <crate::utils::Storage>::sse_decode(deserializer);
+        let mut var_processes =
+            <std::collections::HashMap<u32, crate::memory::ProcessMemoryInfo>>::sse_decode(
+                deserializer,
+            );
         return crate::memory::Memory {
             total_memory: var_totalMemory,
             used_memory: var_usedMemory,
             total_swap: var_totalSwap,
             used_swap: var_usedSwap,
+            processes: var_processes,
         };
+    }
+}
+
+impl SseDecode for Option<String> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<String>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for crate::memory::ProcessMemoryInfo {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_memory = <crate::utils::Storage>::sse_decode(deserializer);
+        let mut var_rawMemory = <u64>::sse_decode(deserializer);
+        let mut var_name = <String>::sse_decode(deserializer);
+        let mut var_exe = <Option<String>>::sse_decode(deserializer);
+        return crate::memory::ProcessMemoryInfo {
+            memory: var_memory,
+            raw_memory: var_rawMemory,
+            name: var_name,
+            exe: var_exe,
+        };
+    }
+}
+
+impl SseDecode for (u32, crate::memory::ProcessMemoryInfo) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_field0 = <u32>::sse_decode(deserializer);
+        let mut var_field1 = <crate::memory::ProcessMemoryInfo>::sse_decode(deserializer);
+        return (var_field0, var_field1);
     }
 }
 
@@ -256,6 +354,13 @@ impl SseDecode for crate::utils::Storage {
             remainder: var_remainder,
             unit: var_unit,
         };
+    }
+}
+
+impl SseDecode for u32 {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        deserializer.cursor.read_u32::<NativeEndian>().unwrap()
     }
 }
 
@@ -289,6 +394,13 @@ impl SseDecode for crate::utils::Unit {
     }
 }
 
+impl SseDecode for usize {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        deserializer.cursor.read_u64::<NativeEndian>().unwrap() as _
+    }
+}
+
 fn pde_ffi_dispatcher_primary_impl(
     func_id: i32,
     port: flutter_rust_bridge::for_generated::MessagePort,
@@ -298,8 +410,14 @@ fn pde_ffi_dispatcher_primary_impl(
 ) {
     // Codec=Pde (Serialization + dispatch), see doc to use other codecs
     match func_id {
-        1 => wire__crate__api__memory__get_memory_info_impl(port, ptr, rust_vec_len, data_len),
-        2 => wire__crate__api__memory__init_app_impl(port, ptr, rust_vec_len, data_len),
+        1 => wire__crate__api__memory__get_first_process_memory_usage_impl(
+            port,
+            ptr,
+            rust_vec_len,
+            data_len,
+        ),
+        2 => wire__crate__api__memory__get_memory_info_impl(port, ptr, rust_vec_len, data_len),
+        3 => wire__crate__api__memory__init_app_impl(port, ptr, rust_vec_len, data_len),
         _ => unreachable!(),
     }
 }
@@ -312,8 +430,8 @@ fn pde_ffi_dispatcher_sync_impl(
 ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartSse {
     // Codec=Pde (Serialization + dispatch), see doc to use other codecs
     match func_id {
-        3 => wire__crate__api__memory__storage_to_float_impl(ptr, rust_vec_len, data_len),
-        4 => wire__crate__api__memory__unit_to_string_impl(ptr, rust_vec_len, data_len),
+        4 => wire__crate__api__memory__storage_to_float_impl(ptr, rust_vec_len, data_len),
+        5 => wire__crate__api__memory__unit_to_string_impl(ptr, rust_vec_len, data_len),
         _ => unreachable!(),
     }
 }
@@ -328,6 +446,7 @@ impl flutter_rust_bridge::IntoDart for crate::memory::Memory {
             self.used_memory.into_into_dart().into_dart(),
             self.total_swap.into_into_dart().into_dart(),
             self.used_swap.into_into_dart().into_dart(),
+            self.processes.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -335,6 +454,29 @@ impl flutter_rust_bridge::IntoDart for crate::memory::Memory {
 impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::memory::Memory {}
 impl flutter_rust_bridge::IntoIntoDart<crate::memory::Memory> for crate::memory::Memory {
     fn into_into_dart(self) -> crate::memory::Memory {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::memory::ProcessMemoryInfo {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.memory.into_into_dart().into_dart(),
+            self.raw_memory.into_into_dart().into_dart(),
+            self.name.into_into_dart().into_dart(),
+            self.exe.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::memory::ProcessMemoryInfo
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::memory::ProcessMemoryInfo>
+    for crate::memory::ProcessMemoryInfo
+{
+    fn into_into_dart(self) -> crate::memory::ProcessMemoryInfo {
         self
     }
 }
@@ -383,6 +525,16 @@ impl SseEncode for flutter_rust_bridge::for_generated::anyhow::Error {
     }
 }
 
+impl SseEncode for std::collections::HashMap<u32, crate::memory::ProcessMemoryInfo> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <Vec<(u32, crate::memory::ProcessMemoryInfo)>>::sse_encode(
+            self.into_iter().collect(),
+            serializer,
+        );
+    }
+}
+
 impl SseEncode for String {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -421,6 +573,16 @@ impl SseEncode for Vec<u8> {
     }
 }
 
+impl SseEncode for Vec<(u32, crate::memory::ProcessMemoryInfo)> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <(u32, crate::memory::ProcessMemoryInfo)>::sse_encode(item, serializer);
+        }
+    }
+}
+
 impl SseEncode for crate::memory::Memory {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -428,6 +590,38 @@ impl SseEncode for crate::memory::Memory {
         <crate::utils::Storage>::sse_encode(self.used_memory, serializer);
         <crate::utils::Storage>::sse_encode(self.total_swap, serializer);
         <crate::utils::Storage>::sse_encode(self.used_swap, serializer);
+        <std::collections::HashMap<u32, crate::memory::ProcessMemoryInfo>>::sse_encode(
+            self.processes,
+            serializer,
+        );
+    }
+}
+
+impl SseEncode for Option<String> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <String>::sse_encode(value, serializer);
+        }
+    }
+}
+
+impl SseEncode for crate::memory::ProcessMemoryInfo {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <crate::utils::Storage>::sse_encode(self.memory, serializer);
+        <u64>::sse_encode(self.raw_memory, serializer);
+        <String>::sse_encode(self.name, serializer);
+        <Option<String>>::sse_encode(self.exe, serializer);
+    }
+}
+
+impl SseEncode for (u32, crate::memory::ProcessMemoryInfo) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <u32>::sse_encode(self.0, serializer);
+        <crate::memory::ProcessMemoryInfo>::sse_encode(self.1, serializer);
     }
 }
 
@@ -437,6 +631,13 @@ impl SseEncode for crate::utils::Storage {
         <u64>::sse_encode(self.quotient, serializer);
         <u64>::sse_encode(self.remainder, serializer);
         <crate::utils::Unit>::sse_encode(self.unit, serializer);
+    }
+}
+
+impl SseEncode for u32 {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        serializer.cursor.write_u32::<NativeEndian>(self).unwrap();
     }
 }
 
@@ -471,6 +672,16 @@ impl SseEncode for crate::utils::Unit {
             },
             serializer,
         );
+    }
+}
+
+impl SseEncode for usize {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        serializer
+            .cursor
+            .write_u64::<NativeEndian>(self as _)
+            .unwrap();
     }
 }
 

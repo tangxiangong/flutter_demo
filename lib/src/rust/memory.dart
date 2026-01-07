@@ -12,12 +12,14 @@ class Memory {
   final Storage usedMemory;
   final Storage totalSwap;
   final Storage usedSwap;
+  final Map<int, ProcessMemoryInfo> processes;
 
   const Memory({
     required this.totalMemory,
     required this.usedMemory,
     required this.totalSwap,
     required this.usedSwap,
+    required this.processes,
   });
 
   @override
@@ -25,7 +27,8 @@ class Memory {
       totalMemory.hashCode ^
       usedMemory.hashCode ^
       totalSwap.hashCode ^
-      usedSwap.hashCode;
+      usedSwap.hashCode ^
+      processes.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -35,5 +38,34 @@ class Memory {
           totalMemory == other.totalMemory &&
           usedMemory == other.usedMemory &&
           totalSwap == other.totalSwap &&
-          usedSwap == other.usedSwap;
+          usedSwap == other.usedSwap &&
+          processes == other.processes;
+}
+
+class ProcessMemoryInfo {
+  final Storage memory;
+  final BigInt rawMemory;
+  final String name;
+  final String? exe;
+
+  const ProcessMemoryInfo({
+    required this.memory,
+    required this.rawMemory,
+    required this.name,
+    this.exe,
+  });
+
+  @override
+  int get hashCode =>
+      memory.hashCode ^ rawMemory.hashCode ^ name.hashCode ^ exe.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ProcessMemoryInfo &&
+          runtimeType == other.runtimeType &&
+          memory == other.memory &&
+          rawMemory == other.rawMemory &&
+          name == other.name &&
+          exe == other.exe;
 }

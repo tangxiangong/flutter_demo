@@ -11,6 +11,10 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 Future<Memory> getMemoryInfo() =>
     RustLib.instance.api.crateApiMemoryGetMemoryInfo();
 
+Future<List<(int, ProcessMemoryInfo)>> getFirstProcessMemoryUsage(
+        {required BigInt n}) =>
+    RustLib.instance.api.crateApiMemoryGetFirstProcessMemoryUsage(n: n);
+
 double storageToFloat({required Storage storage}) =>
     RustLib.instance.api.crateApiMemoryStorageToFloat(storage: storage);
 

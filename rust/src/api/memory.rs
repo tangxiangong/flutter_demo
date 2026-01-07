@@ -1,10 +1,14 @@
 use crate::{
-    memory::Memory,
+    memory::{Memory, ProcessMemoryInfo},
     utils::{Storage, Unit},
 };
 
 pub fn get_memory_info() -> anyhow::Result<Memory> {
     Ok(Memory::get())
+}
+
+pub fn get_first_process_memory_usage(n: usize) -> anyhow::Result<Vec<(u32, ProcessMemoryInfo)>> {
+    Ok(Memory::first(n))
 }
 
 #[flutter_rust_bridge::frb(sync)]

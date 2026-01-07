@@ -85,20 +85,19 @@ class MemoryInfoWidget extends StatefulWidget {
 
 class _MemoryInfoWidgetState extends State<MemoryInfoWidget> {
   Memory? _memory;
-  StreamSubscription<Memory>? _subscription;
+  List<(int, ProcessMemoryInfo)>? _processes;
+  StreamSubscription<Memory>? _memorySubscription;
+  StreamSubscription<List<(int, ProcessMemoryInfo)>>? _processesSubscription;
 
   @override
   void initState() {
     super.initState();
-    getMemoryInfo().then((memory) {
-      if (mounted) {
-        setState(() {
-          _memory = memory;
-        });
-      }
-    });
 
-    _subscription = Stream.periodic(
+    // Load initial data immediately
+    _loadData();
+
+    // Then update every second
+    _memorySubscription = Stream.periodic(
       const Duration(seconds: 1),
       (_) => getMemoryInfo(),
     ).asyncMap((future) => future).listen((memory) {
@@ -108,11 +107,35 @@ class _MemoryInfoWidgetState extends State<MemoryInfoWidget> {
         });
       }
     });
+
+    _processesSubscription = Stream.periodic(
+      const Duration(seconds: 1),
+      (_) => getFirstProcessMemoryUsage(n: BigInt.from(10)),
+    ).asyncMap((future) => future).listen((processes) {
+      if (mounted) {
+        setState(() {
+          _processes = processes;
+        });
+      }
+    });
+  }
+
+  Future<void> _loadData() async {
+    final memory = await getMemoryInfo();
+    final processes = await getFirstProcessMemoryUsage(n: BigInt.from(10));
+
+    if (mounted) {
+      setState(() {
+        _memory = memory;
+        _processes = processes;
+      });
+    }
   }
 
   @override
   void dispose() {
-    _subscription?.cancel();
+    _memorySubscription?.cancel();
+    _processesSubscription?.cancel();
     super.dispose();
   }
 
@@ -123,18 +146,99 @@ class _MemoryInfoWidgetState extends State<MemoryInfoWidget> {
     }
 
     final memory = _memory!;
-    return Center(
-        child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          'Memory: ${storageToFloat(storage: memory.usedMemory).toStringAsFixed(2)} ${unitToString(unit: memory.usedMemory.unit)} / ${storageToFloat(storage: memory.totalMemory)} ${unitToString(unit: memory.totalMemory.unit)}',
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Memory: ${storageToFloat(storage: memory.usedMemory).toStringAsFixed(2)} ${unitToString(unit: memory.usedMemory.unit)} / ${storageToFloat(storage: memory.totalMemory)} ${unitToString(unit: memory.totalMemory.unit)}',
+          ),
+          SizedBox(height: 16),
+          Text(
+            'Swap: ${storageToFloat(storage: memory.usedSwap).toStringAsFixed(2)} ${unitToString(unit: memory.usedSwap.unit)} / ${storageToFloat(storage: memory.totalSwap)} ${unitToString(unit: memory.totalSwap.unit)}',
+          ),
+          SizedBox(height: 16),
+          Expanded(
+            child: ProcessMemoryInfoWidget(processes: _processes),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class ProcessMemoryInfoWidget extends StatelessWidget {
+  const ProcessMemoryInfoWidget({
+    super.key,
+    required List<(int, ProcessMemoryInfo)>? processes,
+  }) : _processes = processes;
+
+  final List<(int, ProcessMemoryInfo)>? _processes;
+
+  @override
+  Widget build(BuildContext context) {
+    if (_processes == null || _processes!.isEmpty) {
+      return SizedBox.shrink();
+    }
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: Table(
+          defaultColumnWidth: const FixedColumnWidth(120),
+          border: TableBorder.all(),
+          children: [
+            TableRow(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text('Pid',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text('Name',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text('Exe',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text('Memory',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                ),
+              ],
+            ),
+            ..._processes!.map((process) => TableRow(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(process.$1.toString()),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(process.$2.name),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(process.$2.exe ?? 'Unknown'),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        '${storageToFloat(storage: process.$2.memory).toStringAsFixed(2)} ${unitToString(unit: process.$2.memory.unit)}',
+                      ),
+                    ),
+                  ],
+                )),
+          ],
         ),
-        SizedBox(height: 16),
-        Text(
-          'Swap: ${storageToFloat(storage: memory.usedSwap).toStringAsFixed(2)} ${unitToString(unit: memory.usedSwap.unit)} / ${storageToFloat(storage: memory.totalSwap)} ${unitToString(unit: memory.totalSwap.unit)}',
-        ),
-      ],
-    ));
+      ),
+    );
   }
 }
